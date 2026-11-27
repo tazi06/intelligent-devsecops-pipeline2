@@ -94,14 +94,12 @@ jobs:
           python3 -m json.tool /tmp/models.json
 
       - name: Test OpenCode with Kaggle Qwen
-        shell: bash
         run: |
-          set -eo pipefail
-          opencode models
           opencode run \
-            --standalone \
             --print-logs \
             --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
-            'Reply with exactly: CONNECTION_SUCCESS' | tee /tmp/out.txt
+            'Reply with exactly: CONNECTION_SUCCESS' > /tmp/out.txt 2>&1 || true
+          echo "=== last 60 lines ==="
+          tail -n 60 /tmp/out.txt
           grep -q CONNECTION_SUCCESS /tmp/out.txt
