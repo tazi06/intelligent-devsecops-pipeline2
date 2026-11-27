@@ -87,4 +87,4 @@ jobs:
       - name: Test OpenCode + Qwen Connection
         run: |
           opencode run "Reply with exactly: CONNECTION_SUCCESS"
-          #
+          ##
