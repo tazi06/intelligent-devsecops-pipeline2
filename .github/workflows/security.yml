@@ -53,14 +53,14 @@ jobs:
           exit-code: '1'
     
  
+
   opencode-test:
     name: OpenCode + Cloudflare Security Audit Skill
     runs-on: ubuntu-latest
+
     env:
       KAGGLE_API_KEY: ${{ secrets.KAGGLE_API_KEY }}
       KAGGLE_BASE_URL: ${{ secrets.KAGGLE_BASE_URL }}
-      run: |
-          opencode run "Reply with exactly: CONNECTION_SUCCESS
 
     steps:
       - name: Checkout repository
@@ -80,6 +80,14 @@ jobs:
 
       - name: Verify Cloudflare Skill
         run: |
-          test -f .agents/skills/security-audit/SKILL.md
-          echo "Cloudflare Security Audit Skill installed successfully"
-          - name: Test OpenCode + Qwen Connection"
+          SKILL_FILE=$(find . -type f -path "*/security-audit/SKILL.md" -print -quit)
+          if [ -z "$SKILL_FILE" ]; then
+            echo "ERROR: Skill not found"
+            find . -type f -name "SKILL.md" -print
+            exit 1
+          fi
+          echo "Skill found: $SKILL_FILE"
+
+      - name: Test OpenCode + Qwen Connection
+        run: |
+          opencode run "Reply with exactly: CONNECTION_SUCCESS"
