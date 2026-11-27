@@ -103,3 +103,20 @@ jobs:
           echo "=== last 60 lines ==="
           tail -n 60 /tmp/out.txt
           grep -q CONNECTION_SUCCESS /tmp/out.txt
+
+      - name: Run Security Audit with OpenCode
+        run: |
+          opencode run \
+            --model kaggle/qwen2.5-coder-7b \
+            'Use the security-audit skill to audit the app/ directory. Write a short report to security-report.md' \
+            > /tmp/audit.txt 2>&1 || true
+          tail -n 40 /tmp/audit.txt
+          test -s security-report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: |
+            security-report.md
+            /tmp/audit.txt
