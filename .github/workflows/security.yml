@@ -84,7 +84,7 @@ jobs:
           test -s .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill verified successfully"
 
-           - name: Debug OpenCode + Qwen
+      - name: Debug OpenCode + Qwen
         run: |
           echo "=== OpenCode Version ==="
           opencode --version
