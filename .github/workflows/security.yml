@@ -72,7 +72,7 @@ jobs:
 
       - name: Verify OpenCode
         run: |
-          opencode --versio
+          opencode --version
 
       - name: Verify OpenCode
         run: opencode --version
