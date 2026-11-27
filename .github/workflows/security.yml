@@ -51,3 +51,29 @@ jobs:
           scanners: vuln
           severity: HIGH,CRITICAL
           exit-code: '1'
+    
+ 
+  opencode-test:
+    name: OpenCode + Cloudflare Security Audit Skill
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+
+      - name: Verify OpenCode
+        run: opencode --version
+
+      - name: Install Cloudflare Security Audit Skill
+        run: |
+          npx -y skills add https://github.com/cloudflare/security-audit-skill \
+            --skill security-audit -a opencode
+
+      - name: Verify Cloudflare Skill
+        run: |
+          test -f .agents/skills/security-audit/SKILL.md
+          echo "Cloudflare Security Audit Skill installed successfully"
