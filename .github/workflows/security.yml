@@ -84,7 +84,23 @@ jobs:
           test -s .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill verified successfully"
 
-      - name: Test OpenCode + Qwen Connection
+           - name: Debug OpenCode + Qwen
         run: |
-          opencode run --model kaggle/qwen2.5-coder-7b \
+          echo "=== OpenCode Version ==="
+          opencode --version
+
+          echo "=== Kaggle API Test ==="
+          curl -sS --max-time 60 \
+            -H "Authorization: Bearer $KAGGLE_API_KEY" \
+            "$KAGGLE_BASE_URL/models" \
+            -o /tmp/models.json \
+            -w "HTTP Status: %{http_code}\n"
+
+          python3 -m json.tool /tmp/models.json
+
+          echo "=== OpenCode Debug ==="
+          opencode run \
+            --print-logs \
+            --log-level DEBUG \
+            --model kaggle/qwen2.5-coder-7b \
             "Reply with exactly: CONNECTION_SUCCESS"
