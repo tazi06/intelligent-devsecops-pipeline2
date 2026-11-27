@@ -86,5 +86,5 @@ jobs:
 
       - name: Test OpenCode + Qwen Connection
         run: |
-          opencode run "Reply with exactly: CONNECTION_SUCCESS"
-          ##
+          opencode run --model kaggle/qwen2.5-coder-7b \
+            "Reply with exactly: CONNECTION_SUCCESS"
