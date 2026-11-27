@@ -88,3 +88,23 @@ jobs:
         run: |
           opencode run "Reply with exactly: CONNECTION_SUCCESS"
           #test#
+      
+      - name: Test Kaggle vLLM API
+        run: |
+          HTTP_CODE=$(curl -sS \
+            -o /tmp/models.json \
+            -w "%{http_code}" \
+            -H "Authorization: Bearer $KAGGLE_API_KEY" \
+            "$KAGGLE_BASE_URL/models")
+
+          echo "Kaggle API HTTP Status: $HTTP_CODE"
+          cat /tmp/models.json
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            exit 1
+          fi
+
+      - name: Test OpenCode + Qwen Connection
+        run: |
+          opencode --print-logs --log-level DEBUG run \
+            "Reply with exactly: CONNECTION_SUCCESS"
