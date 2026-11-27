@@ -121,14 +121,18 @@ jobs:
 
      
  
-      - name: Test OpenCode + Qwen
+      - name: Test OpenCode + Kaggle Qwen
         shell: bash
         run: |
-          echo "=== OpenCode Models ==="
+          echo "=== OpenCode ==="
+          opencode --version
+
+          echo "=== Available Model ==="
           opencode models
 
-          echo "=== Qwen Inference Test ==="
+          echo "=== Inference ==="
           opencode run \
+            --standalone \
             --print-logs \
             --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
