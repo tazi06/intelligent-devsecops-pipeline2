@@ -56,6 +56,11 @@ jobs:
   opencode-test:
     name: OpenCode + Cloudflare Security Audit Skill
     runs-on: ubuntu-latest
+    env:
+      KAGGLE_API_KEY: ${{ secrets.KAGGLE_API_KEY }}
+      KAGGLE_BASE_URL: ${{ secrets.KAGGLE_BASE_URL }}
+      run: |
+          opencode run "Reply with exactly: CONNECTION_SUCCESS
 
     steps:
       - name: Checkout repository
@@ -77,3 +82,4 @@ jobs:
         run: |
           test -f .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill installed successfully"
+          - name: Test OpenCode + Qwen Connection"

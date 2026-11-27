@@ -1,3 +1,4 @@
+
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "kaggle/qwen2.5-coder-7b",
@@ -7,16 +8,12 @@
       "package": "@opencode/ai/providers/openai-compatible",
       "env": ["KAGGLE_API_KEY"],
       "settings": {
-        "baseURL": "{env:KAGGLE_BASE_URL}"
+        "baseURL": "{env:KAGGLE_BASE_URL}",
+        "apiKey": "{env:KAGGLE_API_KEY}"
       },
       "models": {
         "qwen2.5-coder-7b": {
           "name": "Qwen2.5-Coder-7B",
-          "capabilities": {
-            "tools": true,
-            "input": ["text"],
-            "output": ["text"]
-          },
           "limit": {
             "context": 4096,
             "output": 2048
