@@ -121,20 +121,43 @@ jobs:
 
      
  
-      - name: Test OpenCode + Kaggle Qwen
+      
+      - name: Diagnose Kaggle Qwen
         shell: bash
         run: |
-          echo "=== OpenCode ==="
-          opencode --version
+          set -e
 
-          echo "=== Available Model ==="
-          opencode models
+          API_BASE="${KAGGLE_BASE_URL%/}"
+          case "$API_BASE" in
+            */v1) ;;
+            *) API_BASE="$API_BASE/v1" ;;
+          esac
 
-          echo "=== Inference ==="
+          MODEL_ID="/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/snapshots/c03e6d358207e414f1eca0bb1891e29f1db0e242"
+
+          echo "=== Direct Kaggle Inference ==="
+          HTTP_CODE=$(curl -sS --max-time 120 \
+            -H "Authorization: Bearer $KAGGLE_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(MODEL_ID="$MODEL_ID" python3 -c 'import os,json; print(json.dumps({"model":os.environ["MODEL_ID"],"messages":[{"role":"user","content":"Reply exactly CONNECTION_SUCCESS"}],"temperature":0}))')" \
+            "$API_BASE/chat/completions" \
+            -o /tmp/kaggle-response.json \
+            -w "%{http_code}")
+
+          echo "Direct API HTTP: $HTTP_CODE"
+          cat /tmp/kaggle-response.json
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Direct Kaggle inference failed"
+            exit 1
+          fi
+
+          echo "=== OpenCode Inference ==="
           opencode run \
             --standalone \
             --print-logs \
             --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
             'Reply with exactly: CONNECTION_SUCCESS'
+
 
