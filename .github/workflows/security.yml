@@ -120,14 +120,17 @@ jobs:
           echo "Actual model ID: $MODEL_ID"
 
      
+ 
       - name: Test OpenCode + Qwen
         shell: bash
         run: |
-          opencode --version
-          opencode models kaggle
+          echo "=== OpenCode Models ==="
+          opencode models
 
+          echo "=== Qwen Inference Test ==="
           opencode run \
             --print-logs \
             --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
             'Reply with exactly: CONNECTION_SUCCESS'
+
