@@ -35,3 +35,19 @@ jobs:
         run: |
           python -m pip install --upgrade semgrep
           semgrep scan --config auto --error app/
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: app/
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
