@@ -118,3 +118,12 @@ jobs:
             'import json; print(json.load(open("/tmp/models.json"))["data"][0]["id"])')
 
           echo "Actual model ID: $MODEL_ID"
+          
+      - name: Test OpenCode + Qwen
+        run: |
+          opencode models
+          opencode run \
+            --print-logs \
+            --log-level debug \
+            --model kaggle/qwen2.5-coder-7b \
+            "Reply with exactly: CONNECTION_SUCCESS

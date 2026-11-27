@@ -8,11 +8,12 @@
       "env": ["KAGGLE_API_KEY"],
       "package": "@opencode/ai/providers/openai-compatible",
       "settings": {
-        "baseURL": "{env:KAGGLE_BASE_URL}"
+        "baseURL": "{env:KAGGLE_BASE_URL}",
+        "apiKey": "{env:KAGGLE_API_KEY}"
       },
       "models": {
         "qwen2.5-coder-7b": {
-          "name": "Qwen2.5-Coder-7B-Instruct",
+          "name": "Qwen2.5-Coder-7B",
           "modelID": "/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/snapshots/c03e6d358207e414f1eca0bb1891e29f1db0e242",
           "capabilities": {
             "tools": true,
