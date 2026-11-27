@@ -133,7 +133,7 @@ jobs:
             opencode run \
             --standalone \
             --print-logs \
-            --log-level DEBUG \
+            --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
             'Reply with exactly: CONNECTION_SUCCESS'
 
