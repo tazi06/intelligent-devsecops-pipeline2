@@ -89,23 +89,32 @@ jobs:
           test -s .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill verified successfully"
 
-      - name: Debug OpenCode + Qwen
+ 
+      - name: Debug Kaggle Endpoint
         run: |
           echo "=== OpenCode Version ==="
           opencode --version
 
-          echo "=== Kaggle API Test ==="
-          curl -sS --max-time 60 \
+          echo "=== Normalize API URL ==="
+          API_BASE="${KAGGLE_BASE_URL%/}"
+          case "$API_BASE" in
+            */v1) ;;
+            *) API_BASE="$API_BASE/v1" ;;
+          esac
+
+          echo "API endpoint: $API_BASE"
+
+          echo "=== Kaggle Models API ==="
+          curl -sS --max-time 30 \
             -H "Authorization: Bearer $KAGGLE_API_KEY" \
-            "$KAGGLE_BASE_URL/models" \
+            "$API_BASE/models" \
             -o /tmp/models.json \
             -w "HTTP Status: %{http_code}\n"
 
           python3 -m json.tool /tmp/models.json
 
-          echo "=== OpenCode Debug ==="
-          opencode run \
-            --print-logs \
-            --log-level DEBUG \
-            --model kaggle/qwen2.5-coder-7b \
-            "Reply with exactly: CONNECTION_SUCCESS"
+          echo "=== Extract Model ID ==="
+          MODEL_ID=$(python3 -c \
+            'import json; print(json.load(open("/tmp/models.json"))["data"][0]["id"])')
+
+          echo "Actual model ID: $MODEL_ID"
