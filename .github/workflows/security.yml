@@ -52,6 +52,26 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
     
+
+  opencode-test:
+    name: OpenCode + Cloudflare Security Audit Skill
+    runs-on: ubuntu-latest
+
+    env:
+      KAGGLE_API_KEY: ${{ secrets.KAGGLE_API_KEY }}
+      KAGGLE_BASE_URL: ${{ secrets.KAGGLE_BASE_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+
+      - name: Verify OpenCode
+        run: opencode --version
+
       - name: Install Cloudflare Security Audit Skill
         run: |
           npx -y skills add https://github.com/cloudflare/security-audit-skill \
@@ -59,51 +79,11 @@ jobs:
             -a opencode \
             -y
 
-          echo "=== Installed Skills ==="
-          npx -y skills list
-
-          echo "=== Searching for Security Audit Skill ==="
-          find . -type f -path "*/security-audit/SKILL.md" -print
-
-            - name: Verify Cloudflare Skill
+      - name: Verify Cloudflare Skill
         run: |
           test -s .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill verified successfully"
 
-  # opencode-test:
-  #   name: OpenCode + Cloudflare Security Audit Skill
-  #   runs-on: ubuntu-latest
-
-  #   env:
-  #     KAGGLE_API_KEY: ${{ secrets.KAGGLE_API_KEY }}
-  #     KAGGLE_BASE_URL: ${{ secrets.KAGGLE_BASE_URL }}
-
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-
-  #     - name: Install OpenCode
-  #       run: |
-  #         curl -fsSL https://opencode.ai/install | bash
-
-  #     - name: Verify OpenCode
-  #       run: opencode --version
-
-  #     - name: Install Cloudflare Security Audit Skill
-  #       run: |
-  #         npx -y skills add https://github.com/cloudflare/security-audit-skill \
-  #           --skill security-audit -a opencode
-
-  #     - name: Verify Cloudflare Skill
-  #       run: |
-  #         SKILL_FILE=$(find . -type f -path "*/security-audit/SKILL.md" -print -quit)
-  #         if [ -z "$SKILL_FILE" ]; then
-  #           echo "ERROR: Skill not found"
-  #           find . -type f -name "SKILL.md" -print
-  #           exit 1
-  #         fi
-  #         echo "Skill found: $SKILL_FILE"
-
-  #     - name: Test OpenCode + Qwen Connection
-  #       run: |
-  #         opencode run "Reply with exactly: CONNECTION_SUCCESS"
+      - name: Test OpenCode + Qwen Connection
+        run: |
+          opencode run "Reply with exactly: CONNECTION_SUCCESS"
