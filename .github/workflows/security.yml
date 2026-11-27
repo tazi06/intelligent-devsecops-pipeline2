@@ -8,15 +8,17 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   secret-scan:
     name: Secret Scanning
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -26,7 +28,6 @@ jobs:
   sast:
     name: Static Application Security Testing
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,32 +36,29 @@ jobs:
         run: |
           python -m pip install --upgrade semgrep
           semgrep scan --config auto --error app/
+
   dependency-scan:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
           scan-ref: app/
           scanners: vuln
           severity: HIGH,CRITICAL
           exit-code: '1'
-    
 
   opencode-test:
     name: OpenCode + Cloudflare Security Audit Skill
     runs-on: ubuntu-latest
-
     env:
       KAGGLE_API_KEY: ${{ secrets.KAGGLE_API_KEY }}
       KAGGLE_BASE_URL: ${{ secrets.KAGGLE_BASE_URL }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,73 +69,39 @@ jobs:
           echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
 
       - name: Verify OpenCode
-        run: |
-          opencode --version
-
-      - name: Verify OpenCode
         run: opencode --version
 
       - name: Install Cloudflare Security Audit Skill
         run: |
           npx -y skills add https://github.com/cloudflare/security-audit-skill \
-            --skill security-audit \
-            -a opencode \
-            -y
-
-      - name: Verify Cloudflare Skill
-        run: |
+            --skill security-audit -a opencode -y
           test -s .agents/skills/security-audit/SKILL.md
           echo "Cloudflare Security Audit Skill verified successfully"
 
- 
+      - name: Normalize Kaggle URL
+        run: |
+          API_BASE="${KAGGLE_BASE_URL%/}"
+          case "$API_BASE" in */v1) ;; *) API_BASE="$API_BASE/v1" ;; esac
+          echo "KAGGLE_BASE_URL=$API_BASE" >> "$GITHUB_ENV"
+
       - name: Debug Kaggle Endpoint
         run: |
-          echo "=== OpenCode Version ==="
-          opencode --version
-
-          echo "=== Normalize API URL ==="
-          API_BASE="${KAGGLE_BASE_URL%/}"
-          case "$API_BASE" in
-            */v1) ;;
-            *) API_BASE="$API_BASE/v1" ;;
-          esac
-
-          echo "API endpoint: $API_BASE"
-
-          echo "=== Kaggle Models API ==="
           curl -sS --max-time 30 \
             -H "Authorization: Bearer $KAGGLE_API_KEY" \
-            "$API_BASE/models" \
+            "$KAGGLE_BASE_URL/models" \
             -o /tmp/models.json \
             -w "HTTP Status: %{http_code}\n"
-
           python3 -m json.tool /tmp/models.json
-
-          echo "=== Extract Model ID ==="
-          MODEL_ID=$(python3 -c \
-            'import json; print(json.load(open("/tmp/models.json"))["data"][0]["id"])')
-
-          echo "Actual model ID: $MODEL_ID"
 
       - name: Test OpenCode with Kaggle Qwen
         shell: bash
         run: |
-            set -e
-            echo "=== OpenCode Version ==="
-            opencode --version
-
-            echo "=== Model ==="
-            opencode models
-
-            echo "=== Inference ==="
-            opencode run \
+          set -eo pipefail
+          opencode models
+          opencode run \
             --standalone \
             --print-logs \
             --log-level debug \
             --model kaggle/qwen2.5-coder-7b \
-            'Reply with exactly: CONNECTION_SUCCESS'
-
-     
- 
-      
-  
+            'Reply with exactly: CONNECTION_SUCCESS' | tee /tmp/out.txt
+          grep -q CONNECTION_SUCCESS /tmp/out.txt

@@ -1,29 +1,18 @@
-
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "kaggle/qwen2.5-coder-7b",
-  "providers": {
+  "provider": {
     "kaggle": {
+      "npm": "@ai-sdk/openai-compatible",
       "name": "Kaggle vLLM",
-      "package": "@opencode/ai/providers/openai-compatible",
-      "env": ["KAGGLE_API_KEY"],
-      "settings": {
+      "options": {
         "baseURL": "{env:KAGGLE_BASE_URL}",
         "apiKey": "{env:KAGGLE_API_KEY}"
       },
       "models": {
         "qwen2.5-coder-7b": {
           "name": "Qwen2.5-Coder-7B-Instruct",
-          "modelID": "/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-7B-Instruct/snapshots/c03e6d358207e414f1eca0bb1891e29f1db0e242",
-          "capabilities": {
-            "tools": true,
-            "input": ["text"],
-            "output": ["text"]
-          },
-          "limit": {
-            "context": 4096,
-            "output": 2048
-          }
+          "limit": { "context": 8192, "output": 2048 }
         }
       }
     }
