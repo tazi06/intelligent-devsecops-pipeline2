@@ -108,15 +108,17 @@ jobs:
         run: |
           opencode run \
             --model kaggle/qwen2.5-coder-7b \
-            'Use the security-audit skill to audit the app/ directory. Write a short report to security-report.md' \
+            'Use the security-audit skill. This is a non-interactive CI run, so do NOT ask any questions. Use these settings: target directory = app/, source ref = HEAD (current checkout), profile = quick, budget = default, output directory = ./audit-output. Run the audit now, then write a short summary of the findings to security-report.md in the repo root.' \
             > /tmp/audit.txt 2>&1 || true
           tail -n 40 /tmp/audit.txt
           test -s security-report.md
 
       - name: Upload report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-report
           path: |
             security-report.md
+            audit-output/
             /tmp/audit.txt
