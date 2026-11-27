@@ -65,7 +65,10 @@ jobs:
           echo "=== Searching for Security Audit Skill ==="
           find . -type f -path "*/security-audit/SKILL.md" -print
 
- 
+            - name: Verify Cloudflare Skill
+        run: |
+          test -s .agents/skills/security-audit/SKILL.md
+          echo "Cloudflare Security Audit Skill verified successfully"
 
   # opencode-test:
   #   name: OpenCode + Cloudflare Security Audit Skill
